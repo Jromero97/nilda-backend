@@ -12,13 +12,14 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 from os import path
+
+import dj_database_url
 from dotenv import load_dotenv, find_dotenv
 
 try:
     load_dotenv(find_dotenv())
 except Exception as e:
     print(e)
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = path.abspath(path.dirname(__file__) + '../../../')
@@ -45,6 +46,11 @@ STATICFILES_FINDERS = [
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
+# Broken link notifications
+
+ADMINS = [
+    ('Juan R. Romero', 'j.romeroc97@gmail.com'),
+]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -55,12 +61,16 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+]
 
 # Application definition
 
-INSTALLED_APPS = [
+SITE_ID = 1
+
+BASE_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -68,6 +78,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+CUSTOM_APPS = [
+    'nilda_apps.core',
+    'nilda_apps.charge',
+    'nilda_apps.ethnic',
+    'nilda_apps.exams',
+    'nilda_apps.medicine',
+    'nilda_apps.pathology',
+    'nilda_apps.speciality',
+    'nilda_apps.staff',
+
+]
+
+INSTALLED_APPS = BASE_APPS + CUSTOM_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -79,12 +103,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'nilda_hospital.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, '../../templates')]
+        'DIRS': [os.path.join(PROJECT_ROOT, 'templates')]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -100,17 +124,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default':
+        dj_database_url.config(env='DATABASE_URL', default=None,
+                               engine='django.db.backends.postgresql',
+                               conn_max_age=int(os.environ.get('DATABASE_CONN_MAX_AGE', default=0)),
+                               )
 }
 
+# Login configuration
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/admin/'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -130,7 +158,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -143,8 +170,3 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-
-
-
-
